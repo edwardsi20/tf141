@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lehrer Verwaltung</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Lehrer Verwaltung</h1>
+        <div class="form-group">
+            <label for="vorname">Vorname:</label>
+            <input type="text" id="vorname" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="nachname">Nachname:</label>
+            <input type="text" id="nachname" class="form-control" required>
+        </div>
+        <button class="btn btn-success" onclick="handleSubmit('add')">Hinzufügen</button>
+        <button class="btn btn-danger" onclick="handleSubmit('delete')">Löschen</button>
+    </div>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Dein JavaScript-File -->
+    <script src="client.js"></script>
+</body>
+</html>
