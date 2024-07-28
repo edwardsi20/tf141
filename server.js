@@ -115,6 +115,18 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'test.html'));
 });
 
+// Route für das Abrufen der Lehrer-Daten
+app.get('/api/lehrer', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT vorname, nachname FROM lehrer');
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error executing query', err.stack);
+    res.status(500).send('Fehler beim Abrufen der Lehrer-Daten');
+  }
+});
+
+
 // Starte den Express-Server
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);
