@@ -1,72 +1,64 @@
-// // Beispiel für eine einfache Abfrage
-// async function testConnection() {
-//   try {
-//     const res = await pool.query('SELECT NOW()'); // Führt eine SQL-Abfrage aus
-//     console.log(res.rows); // Gibt das Ergebnis der Abfrage aus
-//   } catch (err) {
-//     console.error('Error executing query', err.stack); // Gibt bei Fehlern eine Fehlermeldung aus
-//   }
-// }
-
-require('dotenv').config(); // Lädt die Umgebungsvariablen aus der .env-Datei
-const express = require('express'); // Importiert Express für das Web-Framework
-const { Pool } = require('pg'); // Importiert das PostgreSQL-Client-Modul
-const path = require('path');
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { Client } = require('pg');
 
 const app = express();
 const port = 3000;
 
-// Erstelle eine Pool-Instanz mit der Verbindungs-URL aus den Umgebungsvariablen
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
-});
-
-// Middleware für das Parsen von JSON-Anfragen
+app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Statische Dateien aus dem 'public'-Verzeichnis bedienen
 
-// Route für die Bearbeitung von Lehrer-Daten
-app.post('/api/lehrer', async (req, res) => {
-  const { vorname, nachname, action } = req.body;
+const client = new Client({
+  connectionString: process.env.DATABASE_URL,
+});
 
-  if (!vorname || !nachname || !action) {
-    return res.status(400).send('Fehlende Parameter');
-  }
-
+// Stelle die Verbindung einmalig beim Start des Servers her
+(async () => {
   try {
-    if (action === 'add') {
-      await pool.query('INSERT INTO lehrer (vorname, nachname) VALUES ($1, $2)', [vorname, nachname]);
-      res.send('Lehrer hinzugefügt');
-    } else if (action === 'delete') {
-      await pool.query('DELETE FROM lehrer WHERE vorname = $1 AND nachname = $2', [vorname, nachname]);
-      res.send('Lehrer gelöscht');
-    } else {
-      res.status(400).send('Ungültige Aktion');
-    }
+    await client.connect();
+    console.log('Verbindung zur Datenbank hergestellt');
   } catch (err) {
-    console.error('Error executing query', err.stack);
-    res.status(500).send('Fehler beim Bearbeiten der Daten');
+    console.error('Fehler bei der Verbindung zur Datenbank:', err);
+    process.exit(1); // Beende den Prozess, wenn die Verbindung nicht hergestellt werden kann
   }
-});
+})();
 
-// Route für die Root-URL
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'test.html'));
-});
-
-// Route für das Abrufen der Lehrer-Daten
 app.get('/api/lehrer', async (req, res) => {
   try {
-    const result = await pool.query('SELECT vorname, nachname FROM lehrer');
+    const result = await client.query('SELECT * FROM lehrer');
     res.json(result.rows);
   } catch (err) {
-    console.error('Error executing query', err.stack);
-    res.status(500).send('Fehler beim Abrufen der Lehrer-Daten');
+    console.error('Fehler beim Abrufen der Daten:', err);
+    res.status(500).send('Fehler beim Abrufen der Daten');
   }
 });
 
+app.post('/api/lehrer', async (req, res) => {
+  const { vorname, nachname } = req.body;
+  try {
+    const result = await client.query(
+      'INSERT INTO lehrer (vorname, nachname) VALUES ($1, $2) RETURNING *',
+      [vorname, nachname],
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Fehler beim Hinzufügen der Daten:', err);
+    res.status(500).send('Fehler beim Hinzufügen der Daten');
+  }
+});
 
-// Starte den Express-Server
+app.delete('/api/lehrer/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await client.query('DELETE FROM lehrer WHERE id = $1', [id]);
+    res.status(204).send(); // Kein Inhalt, aber erfolgreich gelöscht
+  } catch (err) {
+    console.error('Fehler beim Löschen der Daten:', err);
+    res.status(500).send('Fehler beim Löschen der Daten');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);
 });
