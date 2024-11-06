@@ -26,7 +26,9 @@ const client = new Client({
 
 app.get('/api/lehrer', async (req, res) => {
   try {
-    const result = await client.query('SELECT * FROM lehrer');
+    const result = await client.query(
+      'SELECT "LehrerID" AS lehrerid, "Vorname" AS vorname, "Nachname" AS nachname, "Email" AS email FROM "Lehrer"',
+    );
     res.json(result.rows);
   } catch (err) {
     console.error('Fehler beim Abrufen der Daten:', err);
@@ -35,11 +37,11 @@ app.get('/api/lehrer', async (req, res) => {
 });
 
 app.post('/api/lehrer', async (req, res) => {
-  const { vorname, nachname } = req.body;
+  const { vorname, nachname, geburtsdatum, geschlecht, email, passwort } = req.body;
   try {
     const result = await client.query(
-      'INSERT INTO lehrer (vorname, nachname) VALUES ($1, $2) RETURNING *',
-      [vorname, nachname],
+      'INSERT INTO "Lehrer" ("Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Email", "Passwort") VALUES ($1, $2, $3, $4, $5, $6) RETURNING "LehrerID" AS lehrerid, "Vorname" AS vorname, "Nachname" AS nachname, "Email" AS email',
+      [vorname, nachname, geburtsdatum, geschlecht, email, passwort],
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -51,7 +53,7 @@ app.post('/api/lehrer', async (req, res) => {
 app.delete('/api/lehrer/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    await client.query('DELETE FROM lehrer WHERE id = $1', [id]);
+    await client.query('DELETE FROM "Lehrer" WHERE "LehrerID" = $1', [id]);
     res.status(204).send(); // Kein Inhalt, aber erfolgreich gelöscht
   } catch (err) {
     console.error('Fehler beim Löschen der Daten:', err);
