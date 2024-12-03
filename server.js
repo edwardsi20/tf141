@@ -61,6 +61,24 @@ app.delete('/api/lehrer/:id', async (req, res) => {
   }
 });
 
+// New endpoint to search for teachers by partial match on Vorname or Nachname
+app.get('/api/lehrer/search', async (req, res) => {
+  const { q } = req.query; // Get the search query from the URL
+
+  // Use parameterized query to prevent SQL injection
+  try {
+    const result = await client.query(
+      'SELECT "LehrerID" AS lehrerid, "Vorname" AS vorname, "Nachname" AS nachname, "Email" AS email ' +
+        'FROM "Lehrer" WHERE LOWER("Vorname") ILIKE $1 OR LOWER("Nachname") ILIKE $1',
+      [`%${q}%`], // ILIKE with wildcards for case-insensitive partial match
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error performing search:', err);
+    res.status(500).send('Error performing search');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);
 });
