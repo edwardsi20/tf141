@@ -3,211 +3,370 @@
     <!-- Header -->
     <header class="header">
       <nav class="navbar">
-        <a class="navbar-brand" href="/">Nachhilfebörse</a>
+        <router-link to="/" class="navbar-brand">Nachhilfebörse</router-link>
         <ul class="navbar-links">
-          <li><a href="/subjects">Schulfächer</a></li>
-          <li><a href="/how-it-works">So geht's</a></li>
-          <li><a href="/info">Infos</a></li>
-          <li><a href="/pricing">Preise</a></li>
-          <li><a href="/login" class="btn-login">Login</a></li>
+          <li><router-link to="/subjects">Schulfächer</router-link></li>
+          <li><router-link to="/how-it-works">So geht's</router-link></li>
+          <li><router-link to="/info">Infos</router-link></li>
+          <li><router-link to="/pricing">Preise</router-link></li>
+          <li v-if="!user"><router-link to="/login" class="btn-login">Login</router-link></li>
+          <li v-if="user" class="profile-nav" @mouseleave="dropdownVisible = false">
+            <div @mouseover="dropdownVisible = true">
+              <div class="profile-link">
+                <img :src="profileImage" alt="Profilbild" class="profile-image" />
+                <span class="profile-name">{{ user.vorname }} {{ user.nachname }}</span>
+                <span class="profile-arrow">🠻</span>
+              </div>
+            </div>
+            <div v-if="dropdownVisible" class="dropdown">
+              <button @click="logout">Ausloggen</button>
+            </div>
+          </li>
         </ul>
       </nav>
     </header>
 
     <!-- Hero Section -->
     <section class="hero">
-      <div class="hero-content">
-        <h1>Finde die beste Nachhilfe für dich</h1>
-        <p>Verbessere deine Fähigkeiten mit qualifizierten Lehrern</p>
-        <div class="search-bar">
-          <input v-model="searchQuery" type="text" placeholder="Lehrer oder Fach suchen" />
-          <button @click="performSearch">Suchen</button>
-        </div>
+      <h1>Finde die beste Nachhilfe für dich</h1>
+      <p>Verbessere deine Fähigkeiten mit qualifizierten Lehrern</p>
+      <div class="search-bar">
+        <input type="text" placeholder="Lehrer oder Fach suchen" v-model="searchQuery" />
+        <router-link
+          :to="{ name: 'SearchResults', query: { search: searchQuery } }"
+          class="btn-primary"
+          >Suchen</router-link
+        >
       </div>
     </section>
 
-    <!-- Subjects Section -->
-    <section class="subjects-section">
+    <!-- Beliebte Fächer Section -->
+    <section class="beliebte-faecher">
       <h2>Beliebte Fächer</h2>
-      <div class="subjects-grid">
-        <div v-for="subject in popularSubjects" :key="subject.name" class="subject-card">
-          <i :class="'icon-' + subject.icon"></i>
-          <span>{{ subject.name }}</span>
+      <div class="faecher-grid">
+        <div class="fach-card">
+          <span>📐</span>
+          <span>Mathematik</span>
+        </div>
+        <div class="fach-card">
+          <span>📚</span>
+          <span>Deutsch</span>
+        </div>
+        <div class="fach-card">
+          <span>🇬🇧</span>
+          <span>Englisch</span>
+        </div>
+        <div class="fach-card">
+          <span>🌱</span>
+          <span>Biologie</span>
+        </div>
+        <div class="fach-card">
+          <span>⚛️</span>
+          <span>Physik</span>
+        </div>
+        <div class="fach-card">
+          <span>🧪</span>
+          <span>Chemie</span>
+        </div>
+        <div class="fach-card">
+          <span>📜</span>
+          <span>Geschichte</span>
+        </div>
+        <div class="fach-card">
+          <span>🗺️</span>
+          <span>Geographie</span>
+        </div>
+        <div class="fach-card">
+          <span>🇦🇱</span>
+          <span>Albanisch</span>
         </div>
       </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features-section">
-      <h2>So geht's</h2>
-      <div class="features-grid">
-        <div v-for="feature in features" :key="feature.title" class="feature-card">
-          <i :class="'icon-' + feature.icon"></i>
-          <h3>{{ feature.title }}</h3>
-          <p>{{ feature.description }}</p>
+    <!-- Vorteile Section -->
+    <section class="vorteile">
+      <h2>Warum Nachhilfebörse?</h2>
+      <div class="vorteile-grid">
+        <div class="vorteil-card">
+          <h3>📅 Flexible Termine</h3>
+          <p>Plane deine Nachhilfe ganz nach deinem Zeitplan.</p>
+        </div>
+        <div class="vorteil-card">
+          <h3>💻 Online & Vor Ort</h3>
+          <p>Lerne bequem online oder treffe dich persönlich.</p>
+        </div>
+        <div class="vorteil-card">
+          <h3>🏆 Qualifizierte Lehrer</h3>
+          <p>Alle Lehrer sind geprüft und spezialisiert.</p>
         </div>
       </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-      <p>&copy; 2023 Nachhilfebörse</p>
-      <div class="footer-links">
-        <a href="#">Impressum</a> | <a href="#">Datenschutz</a> | <a href="#">Kontakt</a>
-      </div>
+      <p>© 2023 Nachhilfebörse</p>
+      <ul class="footer-links">
+        <li><router-link to="/impressum">Impressum</router-link></li>
+        <li><router-link to="/privacy">Datenschutz</router-link></li>
+        <li><router-link to="/contact">Kontakt</router-link></li>
+      </ul>
     </footer>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HomePage',
   data() {
     return {
-      searchQuery: '', // Holds the search input
-      popularSubjects: [
-        { name: 'Mathematik', icon: 'mathematik' },
-        { name: 'Deutsch', icon: 'deutsch' },
-        { name: 'Englisch', icon: 'englisch' },
-        { name: 'Biologie', icon: 'biologie' },
-        { name: 'Physik', icon: 'physik' },
-        { name: 'Chemie', icon: 'chemie' },
-      ],
-      features: [
-        {
-          title: 'Lernvideos schauen',
-          description: 'Schau Videos in deinem Tempo.',
-          icon: 'videos',
-        },
-        {
-          title: 'Übungen machen',
-          description: 'Spielerisch lernen mit Übungen.',
-          icon: 'exercises',
-        },
-        {
-          title: 'Vokabeln lernen',
-          description: 'Effektiv Vokabeln trainieren.',
-          icon: 'vocabulary',
-        },
-      ],
+      searchQuery: '', // Für die Suchleiste
+      user: null,
+      dropdownVisible: false,
+      profileImage:
+        'https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg',
     };
   },
+  created() {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      this.user = {
+        vorname: parsedData.Vorname, // Umbenennung in Kleinbuchstaben
+        nachname: parsedData.Nachname, // Umbenennung in Kleinbuchstaben
+        email: parsedData.Email,
+        id: parsedData.id,
+      };
+    }
+  },
   methods: {
-    performSearch() {
-      // Redirect to SearchResults with the search query as a URL parameter
-      this.$router.push({ name: 'SearchResults', query: { q: this.searchQuery } });
+    logout() {
+      localStorage.clear();
+      this.user = null;
+      this.$router.push('/');
     },
   },
 };
 </script>
 
 <style scoped>
+/* General Styling */
 .homepage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   font-family: Arial, sans-serif;
+  color: #333;
 }
 
-.header {
-  background-color: #1d4069;
-  color: #fff;
-  padding: 10px 20px;
-}
-
+/* Navbar */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  background-color: #1d4069;
+  color: #fff;
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
 }
 
 .navbar-links {
-  display: flex;
   list-style: none;
-  gap: 20px;
+  display: flex;
+  gap: 1rem;
+  margin: 0;
 }
 
-.navbar-links a {
+.navbar-links li a {
   color: #fff;
   text-decoration: none;
+  font-weight: bold;
 }
 
 .btn-login {
-  background-color: #2dbfd6;
-  padding: 8px 16px;
-  border-radius: 4px;
+  background-color: #1dace0;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
   color: #fff;
 }
 
+/* Hero Section */
 .hero {
-  background: linear-gradient(135deg, #2b8db3, #1565c0);
-  color: #fff;
-  height: 60vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   text-align: center;
+  padding: 4rem 1rem;
+  background: linear-gradient(to bottom, #1dace0, #1d4069);
+  color: #fff;
 }
 
-.hero-content h1 {
-  font-size: 2.5em;
-  margin-bottom: 0.3em;
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
 }
 
 .search-bar {
-  margin-top: 1em;
   display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 1rem;
 }
 
 .search-bar input {
-  padding: 10px;
+  padding: 0.8rem;
+  border-radius: 5px;
+  border: none;
   width: 300px;
-  border: 1px solid #1976d2;
-  border-radius: 25px;
-  margin-right: 10px;
+  font-size: 1rem;
 }
 
-.search-bar button {
-  padding: 10px 20px;
-  background-color: #1976d2;
+.btn-primary {
+  background-color: #1d4069;
   color: #fff;
-  border: none;
-  border-radius: 25px;
+  padding: 0.8rem 1.5rem;
+  text-decoration: none;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+/* Beliebte Fächer Section */
+.beliebte-faecher {
+  text-align: center;
+  padding: 2rem;
+  background-color: #f9f9f9;
+}
+
+.faecher-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* .fach-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+} */
+
+.fach-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  width: 120px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Zentriert den Inhalt horizontal */
+  justify-content: center; /* Zentriert den Inhalt vertikal */
+  gap: 0.5rem; /* Abstand zwischen Emoji und Text */
+  font-size: 1rem;
+}
+
+/* Vorteile Section */
+.vorteile {
+  text-align: center;
+  padding: 2rem;
+}
+
+.vorteile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.vorteil-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  text-align: center;
+  width: 250px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Footer */
+.footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 2rem;
+  background-color: #333;
+  color: #fff;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.footer-links li a {
+  color: #1dace0;
+  text-decoration: none;
+}
+
+.profile-nav {
+  position: relative;
+}
+
+.profile-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.profile-image {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: 2px solid #1dace0;
+}
+
+.profile-name {
+  font-weight: bold;
+  color: #fff;
+}
+
+.profile-arrow {
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
 }
 
-.subjects-section,
-.features-section {
-  padding: 40px;
-  text-align: center;
-}
-
-.subjects-grid,
-.features-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
-}
-
-.subject-card,
-.feature-card {
-  background-color: #f1f1f1;
-  padding: 20px;
-  width: 150px;
-  text-align: center;
-  border-radius: 8px;
-}
-
-.footer {
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-}
-
-.footer-links a {
-  color: #81d4fa;
-  text-decoration: none;
-  margin: 0 5px;
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Damit das Dropdown immer oben bleibt */
 }
 </style>

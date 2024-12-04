@@ -50,6 +50,49 @@ app.post('/api/lehrer', async (req, res) => {
   }
 });
 
+const bcrypt = require('bcrypt');
+
+// Authentifizierungs-Endpoint
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Lehrer prüfen
+    const lehrerResult = await client.query(
+      'SELECT "LehrerID" AS id, "Vorname", "Nachname", "Email", "Passwort" FROM "Lehrer" WHERE "Email" = $1',
+      [email],
+    );
+
+    if (lehrerResult.rows.length > 0) {
+      const lehrer = lehrerResult.rows[0];
+      // Direktes Vergleichen von Klartextpasswörtern
+      if (password === lehrer.Passwort) {
+        return res.json({ role: 'Lehrer', user: lehrer });
+      }
+    }
+
+    // Schüler prüfen
+    const schuelerResult = await client.query(
+      'SELECT "SchuelerID" AS id, "Vorname", "Nachname", "Email", "Passwort" FROM "Schueler" WHERE "Email" = $1',
+      [email],
+    );
+
+    if (schuelerResult.rows.length > 0) {
+      const schueler = schuelerResult.rows[0];
+      // Direktes Vergleichen von Klartextpasswörtern
+      if (password === schueler.Passwort) {
+        return res.json({ role: 'Schueler', user: schueler });
+      }
+    }
+
+    // Keine Übereinstimmung gefunden
+    res.status(401).json({ message: 'Ungültige E-Mail oder Passwort' });
+  } catch (err) {
+    console.error('Fehler bei der Authentifizierung:', err);
+    res.status(500).send('Fehler bei der Authentifizierung');
+  }
+});
+
 app.delete('/api/lehrer/:id', async (req, res) => {
   const { id } = req.params;
   try {
