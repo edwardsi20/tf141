@@ -1,21 +1,29 @@
 <template>
-  <div class="info-page">
+  <div class="how-it-works-page">
     <header class="header">
-      <h1>Informationen</h1>
+      <h1>So geht's</h1>
     </header>
-    <section class="info-content">
-      <article class="info-card">
-        <h2>Über uns</h2>
-        <p>Wir bieten eine Plattform, um Schüler und Nachhilfelehrer zusammenzubringen.</p>
-      </article>
-      <article class="info-card">
-        <h2>Unsere Mission</h2>
-        <p>Effektive Lernunterstützung für alle, die ihre Ziele erreichen möchten.</p>
-      </article>
-      <article class="info-card">
-        <h2>Kontakt</h2>
-        <p>Sie erreichen uns per E-Mail unter kontakt@nachhilfeboerse.at.</p>
-      </article>
+    <section class="steps">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h2>Registrieren</h2>
+        <p>Erstelle ein kostenloses Konto.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h2>Fach wählen</h2>
+        <p>Wähle das Fach, in dem du Hilfe brauchst.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h2>Lehrer finden</h2>
+        <p>Finde den passenden Lehrer für deine Bedürfnisse.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">4</div>
+        <h2>Lernen starten</h2>
+        <p>Starte mit der Nachhilfe und erreiche deine Ziele.</p>
+      </div>
     </section>
   </div>
 
@@ -31,13 +39,13 @@
 
 <script>
 export default {
-  name: 'InfoPage',
+  name: 'HowItWorksPage',
 };
 </script>
 
 <style scoped>
 /* General Styling */
-.info-page {
+.how-it-works-page {
   font-family: Arial, sans-serif;
   color: #333;
   margin: 0;
@@ -54,8 +62,8 @@ export default {
   color: #fff;
 }
 
-/* Info Section */
-.info-content {
+/* Steps Section */
+.steps {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -63,21 +71,37 @@ export default {
   padding: 2rem;
 }
 
-.info-card {
+.step-card {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   text-align: center;
-  width: 300px;
+  width: 280px;
+  position: relative;
 }
 
-.info-card h2 {
+.step-number {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1d4069;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: bold;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  border-radius: 50%;
+}
+
+.step-card h2 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
 
-.info-card p {
+.step-card p {
   font-size: 1rem;
   color: #666;
 }

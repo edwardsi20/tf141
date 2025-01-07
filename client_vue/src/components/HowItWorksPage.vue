@@ -1,127 +1,162 @@
 <template>
-  <div class="how-it-works-page">
+  <div class="hiw-page">
+    <!-- Header -->
     <header class="header">
-      <h1>So geht's</h1>
+      <nav class="navbar">
+        <router-link to="/" class="navbar-brand">Nachhilfebörse</router-link>
+        <ul class="navbar-links">
+          <li><router-link to="/subjects">Schulfächer</router-link></li>
+          <li><router-link to="/how-it-works">So geht's</router-link></li>
+          <li><router-link to="/pricing">Preise</router-link></li>
+          <li><router-link to="/contact">Kontakt</router-link></li>
+          <li v-if="!user"><router-link to="/login" class="btn-login">Login</router-link></li>
+          <li v-if="user" class="profile-nav" @mouseleave="dropdownVisible = false">
+            <div @mouseover="dropdownVisible = true">
+              <div class="profile-link">
+                <img :src="profileImage" alt="Profilbild" class="profile-image" />
+                <span class="profile-name">{{ user.vorname }} {{ user.nachname }}</span>
+                <span class="profile-arrow">🠻</span>
+              </div>
+            </div>
+            <div v-if="dropdownVisible" class="dropdown">
+              <button @click="logout">Ausloggen</button>
+            </div>
+          </li>
+        </ul>
+      </nav>
     </header>
-    <section class="steps">
-      <div class="step-card">
-        <div class="step-number">1</div>
-        <h2>Registrieren</h2>
-        <p>Erstelle ein kostenloses Konto.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">2</div>
-        <h2>Fach wählen</h2>
-        <p>Wähle das Fach, in dem du Hilfe brauchst.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">3</div>
-        <h2>Lehrer finden</h2>
-        <p>Finde den passenden Lehrer für deine Bedürfnisse.</p>
-      </div>
-      <div class="step-card">
-        <div class="step-number">4</div>
-        <h2>Lernen starten</h2>
-        <p>Starte mit der Nachhilfe und erreiche deine Ziele.</p>
-      </div>
-    </section>
-  </div>
 
-  <footer class="footer">
-    <p>© 2023 Nachhilfebörse</p>
-    <ul class="footer-links">
-      <li><router-link to="/impressum">Impressum</router-link></li>
-      <li><router-link to="/privacy">Datenschutz</router-link></li>
-      <li><router-link to="/contact">Kontakt</router-link></li>
-    </ul>
-  </footer>
+    <!-- Schritt-für-Schritt-Anleitung -->
+    <div class="list-of-steps">
+      <!-- Schritt 1 -->
+      <div class="step ecl-u-d-flex">
+        <div class="step-symbol ecl-u-mv-m">1</div>
+        <div class="ecl-row ecl-u-ph-l ecl-u-width-100">
+          <div class="ecl-col-m-12">
+            <h2 class="ecl-u-type-heading-2">Schritt 1: Erstelle ein Konto</h2>
+          </div>
+          <div class="ecl-col-m-7">
+            <p>
+              Registriere dich in wenigen Schritten und erhalte Zugang zu einer breiten Auswahl an
+              hochqualifizierten Lehrern. Dein Konto dient als zentrale Plattform, um alle deine
+              Nachhilfeaktivitäten zu verwalten.
+            </p>
+          </div>
+          <div class="ecl-col-m-5">
+            <img
+              loading="lazy"
+              src="../assets/img/account.jpg"
+              alt="Schritt 1: Erstelle ein Konto"
+              class="ecl-media-container__media"
+              width="15%"
+              height="auto"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Schritt 2 -->
+      <div class="step ecl-u-d-flex">
+        <div class="step-symbol ecl-u-mv-m">2</div>
+        <div class="ecl-row ecl-u-ph-l ecl-u-width-100">
+          <div class="ecl-col-m-12">
+            <h2 class="ecl-u-type-heading-2">Schritt 2: Buche eine Nachhilfestunde</h2>
+          </div>
+          <div class="ecl-col-m-7">
+            <p>
+              Durchstöbere die Profile unserer Lehrer und finde den perfekten Lehrer für deine
+              Bedürfnisse. Wähle einen passenden Termin und buche direkt online.
+            </p>
+          </div>
+          <div class="ecl-col-m-5">
+            <img
+              loading="lazy"
+              src="../assets/img/book.jpg"
+              alt="Schritt 2: Buche eine Nachhilfestunde"
+              class="ecl-media-container__media"
+              width="15%"
+              height="auto"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Schritt 3 -->
+      <div class="step ecl-u-d-flex">
+        <div class="step-symbol ecl-u-mv-m">3</div>
+        <div class="ecl-row ecl-u-ph-l ecl-u-width-100">
+          <div class="ecl-col-m-12">
+            <h2 class="ecl-u-type-heading-2">Schritt 3: Genieße hochqualitativen Unterricht</h2>
+          </div>
+          <div class="ecl-col-m-7">
+            <p>
+              Lerne in einer angenehmen Umgebung und profitiere von der Expertise unserer erfahrenen
+              Lehrer. Verfolge deine Fortschritte und erreiche deine Lernziele schneller.
+            </p>
+          </div>
+          <div class="ecl-col-m-5">
+            <img
+              loading="lazy"
+              src="../assets/img/enjoy.jpg"
+              alt="Schritt 3: Genieße hochqualitativen Unterricht"
+              class="ecl-media-container__media"
+              width="15%"
+              height="auto"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <p>© 2025 Nachhilfebörse</p>
+        <ul class="footer-links">
+          <li><router-link to="/imprint">Impressum</router-link></li>
+          <li><router-link to="/privacy">Datenschutz</router-link></li>
+          <li><router-link to="/contact">Kontakt</router-link></li>
+          <li><router-link to="/aboutus">Über uns</router-link></li>
+          <li><router-link to="/helpandfaq">Hilfe/FAQ</router-link></li>
+        </ul>
+      </div>
+    </footer>
+  </div>
 </template>
 
 <script>
+import '@/assets/styles.css'; // Import der CSS-Datei
+
 export default {
-  name: 'HowItWorksPage',
+  data() {
+    return {
+      searchQuery: '', // Für die Suchleiste
+      user: null,
+      dropdownVisible: false,
+      profileImage:
+        'https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg',
+    };
+  },
+  created() {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      const parsedData = JSON.parse(userData);
+      this.user = {
+        vorname: parsedData.Vorname, // Umbenennung in Kleinbuchstaben
+        nachname: parsedData.Nachname, // Umbenennung in Kleinbuchstaben
+        email: parsedData.Email,
+        id: parsedData.id,
+      };
+    }
+  },
+  methods: {
+    logout() {
+      localStorage.clear();
+      this.user = null;
+      this.$router.push('/');
+    },
+  },
 };
 </script>
 
-<style scoped>
-/* General Styling */
-.how-it-works-page {
-  font-family: Arial, sans-serif;
-  color: #333;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-
-/* Header */
-.header h1 {
-  font-size: 2.5rem;
-  margin-bottom: 2rem;
-  padding: 2rem 1rem;
-  background-color: #1dace0;
-  color: #fff;
-}
-
-/* Steps Section */
-.steps {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 2rem;
-  padding: 2rem;
-}
-
-.step-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  text-align: center;
-  width: 280px;
-  position: relative;
-}
-
-.step-number {
-  position: absolute;
-  top: -1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #1d4069;
-  color: #fff;
-  font-size: 1.5rem;
-  font-weight: bold;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
-  border-radius: 50%;
-}
-
-.step-card h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.step-card p {
-  font-size: 1rem;
-  color: #666;
-}
-
-.footer {
-  text-align: center;
-  padding: 2rem;
-  background-color: #333;
-  color: #fff;
-}
-.footer-links {
-  list-style: none;
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0 0;
-  padding: 0;
-}
-.footer-links li a {
-  color: #1dace0;
-  text-decoration: none;
-}
-</style>
+<style scoped></style>

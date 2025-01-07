@@ -1,4 +1,30 @@
 <template>
+  <!-- Header -->
+  <header class="header">
+    <nav class="navbar">
+      <router-link to="/" class="navbar-brand">Nachhilfebörse</router-link>
+      <ul class="navbar-links">
+        <li><router-link to="/subjects">Schulfächer</router-link></li>
+        <li><router-link to="/how-it-works">So geht's</router-link></li>
+        <li><router-link to="/pricing">Preise</router-link></li>
+        <li><router-link to="/contact">Kontakt</router-link></li>
+        <li v-if="!user"><router-link to="/login" class="btn-login">Login</router-link></li>
+        <li v-if="user" class="profile-nav" @mouseleave="dropdownVisible = false">
+          <div @mouseover="dropdownVisible = true">
+            <div class="profile-link">
+              <img :src="profileImage" alt="Profilbild" class="profile-image" />
+              <span class="profile-name">{{ user.vorname }} {{ user.nachname }}</span>
+              <span class="profile-arrow">🠻</span>
+            </div>
+          </div>
+          <div v-if="dropdownVisible" class="dropdown">
+            <button @click="logout">Ausloggen</button>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
   <div class="search-results">
     <h2>Suchergebnisse für "{{ $route.query.search || 'Alle Lehrer' }}"</h2>
     <div v-if="filteredTeachers.length > 0" class="results-list">
@@ -6,7 +32,7 @@
         <img :src="teacher.profileImage || defaultImage" alt="Profilbild" class="profile-image" />
         <div class="teacher-info">
           <h3>{{ teacher.vorname }} {{ teacher.nachname }}</h3>
-          <p>Erfahrung: {{ teacher.erfahrung || 'N/A' }} Jahre</p>
+          <p id="found_teachers">Erfahrung: {{ teacher.erfahrung || 'N/A' }} Jahre</p>
           <button @click="contactTeacher(teacher.email)" class="btn-primary">Kontaktieren</button>
         </div>
       </div>
@@ -15,9 +41,24 @@
       <p>Keine Ergebnisse gefunden.</p>
     </div>
   </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>© 2025 Nachhilfebörse</p>
+      <ul class="footer-links">
+        <li><router-link to="/imprint">Impressum</router-link></li>
+        <li><router-link to="/privacy">Datenschutz</router-link></li>
+        <li><router-link to="/contact">Kontakt</router-link></li>
+        <li><router-link to="/aboutus">Über uns</router-link></li>
+        <li><router-link to="/helpandfaq">Hilfe/FAQ</router-link></li>
+      </ul>
+    </div>
+  </footer>
 </template>
 
 <script>
+import '@/assets/styles.css'; // Import der CSS-Datei
 import axios from 'axios';
 
 export default {
@@ -50,64 +91,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.search-results {
-  background-color: #f9f9f9;
-  color: #1d4069;
-  padding: 40px 20px;
-  text-align: center;
-  min-height: 100vh;
-}
-
-.search-results h2 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-}
-
-.results-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.teacher-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  width: 300px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.profile-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  margin-bottom: 10px;
-  border: 2px solid #1dace0;
-}
-
-.teacher-info h3 {
-  font-size: 1.5rem;
-  margin: 10px 0;
-}
-
-.teacher-info p {
-  font-size: 1rem;
-  color: #666;
-}
-
-.btn-primary {
-  background-color: #1d4069;
-  color: #fff;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-</style>
+<style scoped></style>

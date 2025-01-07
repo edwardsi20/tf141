@@ -1,12 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
 const { Client } = require('pg');
 
 const app = express();
 const port = 3000;
 
 app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
 
 const client = new Client({
@@ -93,6 +96,104 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
+// Register-Endpoint
+app.post('/api/register', async (req, res) => {
+  const { role, vorname, nachname, geburtsdatum, geschlecht, email, password } = req.body;
+
+  try {
+    if (role === 'Lehrer') {
+      // Lehrer einfügen
+      await client.query(
+        'INSERT INTO "Lehrer" ("Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Email", "Passwort") VALUES ($1, $2, $3, $4, $5, $6)',
+        [vorname, nachname, geburtsdatum, geschlecht, email, password],
+      );
+      return res.status(201).json({ message: 'Lehrer erfolgreich registriert!' });
+    } else if (role === 'Schueler') {
+      // Schüler einfügen
+      await client.query(
+        'INSERT INTO "Schueler" ("Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Email", "Passwort") VALUES ($1, $2, $3, $4, $5, $6)',
+        [vorname, nachname, geburtsdatum, geschlecht, email, password],
+      );
+      return res.status(201).json({ message: 'Schüler erfolgreich registriert!' });
+    } else {
+      return res.status(400).json({ message: 'Ungültige Rolle angegeben' });
+    }
+  } catch (err) {
+    console.error('Fehler bei der Registrierung:', err);
+    res.status(500).send('Fehler bei der Registrierung');
+  }
+});
+
+app.get('/api/profile/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await client.query(
+      'SELECT "Vorname", "Nachname", "Email", "Geburtsdatum", "Geschlecht" FROM "Schueler" WHERE "SchuelerID" = $1 UNION ALL SELECT "Vorname", "Nachname", "Email", "Geburtsdatum", "Geschlecht" FROM "Lehrer" WHERE "LehrerID" = $1',
+      [id],
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Profil nicht gefunden' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error('Fehler beim Abrufen des Profils:', err);
+    res.status(500).send('Fehler beim Abrufen des Profils');
+  }
+});
+
+app.put('/api/profile/:id', async (req, res) => {
+  const { id } = req.params;
+  const { vorname, nachname, email, geburtsdatum, geschlecht } = req.body;
+
+  try {
+    // Versuche zuerst, das Profil als Schüler zu aktualisieren
+    const schuelerResult = await client.query(
+      `
+      UPDATE "Schueler"
+      SET "Vorname" = $1, "Nachname" = $2, "Email" = $3, "Geburtsdatum" = $4, "Geschlecht" = $5
+      WHERE "SchuelerID" = $6
+      RETURNING *;
+      `,
+      [vorname, nachname, email, geburtsdatum, geschlecht, id],
+    );
+
+    // Falls Schüler nicht gefunden wurde, versuche das Lehrer-Profil zu aktualisieren
+    if (schuelerResult.rowCount === 0) {
+      const lehrerResult = await client.query(
+        `
+        UPDATE "Lehrer"
+        SET "Vorname" = $1, "Nachname" = $2, "Email" = $3, "Geburtsdatum" = $4, "Geschlecht" = $5
+        WHERE "LehrerID" = $6
+        RETURNING *;
+        `,
+        [vorname, nachname, email, geburtsdatum, geschlecht, id],
+      );
+
+      if (lehrerResult.rowCount === 0) {
+        return res.status(404).json({ message: 'Profil nicht gefunden' });
+      }
+
+      // Erfolgreiches Lehrer-Update
+      return res.json({
+        message: 'Profil erfolgreich aktualisiert',
+        profile: lehrerResult.rows[0],
+      });
+    }
+
+    // Erfolgreiches Schüler-Update
+    console.log('Update-Daten:', { id, vorname, nachname, email, geburtsdatum, geschlecht });
+    console.log('Schüler-Update-Ergebnis:', schuelerResult.rows);
+    console.log('Lehrer-Update-Ergebnis:', lehrerResult.rows);
+    res.json({ message: 'Profil erfolgreich aktualisiert', profile: schuelerResult.rows[0] });
+  } catch (err) {
+    console.error('Fehler beim Aktualisieren des Profils:', err);
+    res.status(500).send('Fehler beim Aktualisieren des Profils');
+  }
+});
+
 app.delete('/api/lehrer/:id', async (req, res) => {
   const { id } = req.params;
   try {
@@ -119,6 +220,34 @@ app.get('/api/lehrer/search', async (req, res) => {
   } catch (err) {
     console.error('Error performing search:', err);
     res.status(500).send('Error performing search');
+  }
+});
+
+app.post('/send-email', async (req, res) => {
+  const { name, email, subject, message } = req.body;
+
+  // Konfiguration des E-Mail-Transports
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail', // Oder ein anderer SMTP-Dienst
+    auth: {
+      user: 'edwards.i20@htlwienwest.at', // Deine E-Mail
+      pass: 'HotelTangoLima15', // Passwort (oder App-Passwort, falls 2FA aktiv ist)
+    },
+  });
+
+  const mailOptions = {
+    from: `"${name}" <${email}>`,
+    to: 'edwards.i20@htlwienwest', // Ziel-E-Mail-Adresse
+    subject: subject || 'Neue Kontaktanfrage',
+    text: message,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).send('E-Mail erfolgreich gesendet');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Fehler beim Senden der E-Mail');
   }
 });
 
