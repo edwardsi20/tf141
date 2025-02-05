@@ -2,7 +2,10 @@
   <!-- Header -->
   <header class="header">
     <nav class="navbar">
-      <router-link to="/" class="navbar-brand">Nachhilfebörse</router-link>
+      <div class="navbar-left">
+        <img src="../assets/img/logo.jpg" alt="Logo" class="navbar-logo" />
+        <router-link to="/" class="navbar-brand">StudyPortal</router-link>
+      </div>
       <ul class="navbar-links">
         <li><router-link to="/subjects">Schulfächer</router-link></li>
         <li><router-link to="/how-it-works">So geht's</router-link></li>

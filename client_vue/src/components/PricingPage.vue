@@ -3,7 +3,10 @@
     <!-- Header -->
     <header class="header">
       <nav class="navbar">
-        <router-link to="/" class="navbar-brand">Nachhilfebörse</router-link>
+        <div class="navbar-left">
+          <img src="../assets/img/logo.jpg" alt="Logo" class="navbar-logo" />
+          <router-link to="/" class="navbar-brand">StudyPortal</router-link>
+        </div>
         <ul class="navbar-links">
           <li><router-link to="/subjects">Schulfächer</router-link></li>
           <li><router-link to="/how-it-works">So geht's</router-link></li>
@@ -36,27 +39,31 @@
           <p class="plan-description">Perfekt für flexibles Lernen</p>
           <p class="price">Individuell<span></span></p>
           <ul class="features">
-            <li>Einzelne Nachhilfestunde</li>
-            <li>Individuelle Preisgestaltung durch den Lehrer</li>
-            <li>Direkte Terminvereinbarung</li>
+            <li>✔ Einzelne Nachhilfestunde</li>
+            <li>✔ Individuelle Preisgestaltung durch den Lehrer</li>
+            <li>✔ Direkte Terminvereinbarung</li>
           </ul>
+          <p>🔹 Ideal für spontane Nachhilfestunden</p>
           <button class="cta-button">Mehr erfahren</button>
         </div>
 
         <!-- Business Package -->
         <div class="pricing-card recommended">
-          <h2>Business</h2>
-          <p class="plan-description">Für fortgeschrittene Lerner</p>
+          <h2>Study+</h2>
+          <p class="plan-description">Für regelmäßige Lernunterstützung</p>
           <p class="price">€24,99<span>/Monat</span></p>
           <ul class="features">
-            <li>Video-Unterstützung</li>
-            <li>Premium-Newsletter mit Lernmaterialien</li>
+            <li>✔ Alle Vorteile des Einzelunterrichts</li>
+            <li>✔ Fixe wöchentliche Unterrichtseinheiten</li>
+            <li>✔ Priorisierte Terminvergabe</li>
+            <li>✔ Zugang zu exklusiven Lernmaterialien</li>
           </ul>
+          <p>🔹 Perfekt für Schüler mit festen Lernzielen</p>
           <button class="cta-button">Empfohlen</button>
         </div>
 
         <!-- Elite Package -->
-        <div class="pricing-card">
+        <!-- <div class="pricing-card">
           <h2>Elite</h2>
           <p class="plan-description">Das Rundum-Sorglos-Paket</p>
           <p class="price">€149,99<span>/Monat</span></p>
@@ -68,7 +75,7 @@
             <li>25% Rabatt auf jede Nachhilfestunde</li>
           </ul>
           <button class="cta-button">Premium buchen</button>
-        </div>
+        </div> -->
       </div>
     </section>
 

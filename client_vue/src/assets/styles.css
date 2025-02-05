@@ -26,6 +26,20 @@
   color: #fff;
 }
 
+/* Flex-Container für Logo + Brand */
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+/* Logo */
+.navbar-logo {
+  width: 80px; /* Größe des Logos */
+  border-radius: 50%; /* Damit es rund ist */
+  object-fit: cover; /* Passt das Bild an */
+  margin-right: 1rem;
+}
+
 .navbar-brand {
   font-size: 1.8rem;
   font-weight: bold;
@@ -959,10 +973,11 @@ section:nth-of-type(2) > div > p {
 }
 
 .profile-pic img {
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  transition: transform 0.3s ease;
+  width: 80px; /* Gleiche Größe wie .navbar-logo */
+  height: 80px; /* Höhe anpassen, um Verzerrung zu vermeiden */
+  border-radius: 50%; /* Rundes Bild */
+  object-fit: cover; /* Passt das Bild an */
+  transition: transform 0.3s ease; /* Beibehaltung der Transition */
 }
 
 .profile-info {
