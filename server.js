@@ -186,7 +186,6 @@ app.put('/api/profile/:id', async (req, res) => {
     // Erfolgreiches Schüler-Update
     console.log('Update-Daten:', { id, vorname, nachname, email, geburtsdatum, geschlecht });
     console.log('Schüler-Update-Ergebnis:', schuelerResult.rows);
-    console.log('Lehrer-Update-Ergebnis:', lehrerResult.rows);
     res.json({ message: 'Profil erfolgreich aktualisiert', profile: schuelerResult.rows[0] });
   } catch (err) {
     console.error('Fehler beim Aktualisieren des Profils:', err);

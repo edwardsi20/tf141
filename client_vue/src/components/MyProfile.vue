@@ -1,5 +1,16 @@
 <template>
   <div class="imprint-page">
+    <!-- Push-Benachrichtigung -->
+    <transition name="slide-down">
+      <div v-if="notification.visible" :class="['notification', notification.type]">
+        <span class="icon">
+          <template v-if="notification.type === 'success'">✔</template>
+          <template v-else-if="notification.type === 'error'">✖</template>
+        </span>
+        <span class="message">{{ notification.message }}</span>
+      </div>
+    </transition>
+
     <!-- Header -->
     <header class="header">
       <nav class="navbar">
@@ -31,41 +42,45 @@
 
     <!-- Profile Form -->
     <section class="profile-form">
-      <h1>Mein Profil</h1>
-      <form @submit.prevent="updateProfile">
-        <div class="form-group">
-          <label for="vorname">Vorname</label>
-          <input type="text" id="vorname" v-model="profile.vorname" required />
-        </div>
-        <div class="form-group">
-          <label for="nachname">Nachname</label>
-          <input type="text" id="nachname" v-model="profile.nachname" required />
-        </div>
-        <div class="form-group">
-          <label for="email">E-Mail</label>
-          <input type="email" id="email" v-model="profile.email" required />
-        </div>
-        <div class="form-group">
-          <label for="geburtsdatum">Geburtsdatum</label>
-          <input type="date" id="geburtsdatum" v-model="profile.geburtsdatum" required />
-        </div>
-        <div class="form-group">
-          <label>Geschlecht</label>
-          <div class="radio-group">
-            <label
-              ><input type="radio" value="männlich" v-model="profile.geschlecht" /> Männlich</label
-            >
-            <label
-              ><input type="radio" value="weiblich" v-model="profile.geschlecht" /> Weiblich</label
-            >
-            <label
-              ><input type="radio" value="keine Angabe" v-model="profile.geschlecht" /> Keine
-              Angabe</label
-            >
+      <div class="profile-container">
+        <h1>Mein Profil</h1>
+        <form @submit.prevent="updateProfile" class="profile-form-content">
+          <div class="form-group">
+            <label for="vorname">Vorname</label>
+            <input type="text" id="vorname" v-model="profile.vorname" required />
           </div>
-        </div>
-        <button type="submit" class="btn-primary">Speichern</button>
-      </form>
+          <div class="form-group">
+            <label for="nachname">Nachname</label>
+            <input type="text" id="nachname" v-model="profile.nachname" required />
+          </div>
+          <div class="form-group">
+            <label for="email">E-Mail</label>
+            <input type="email" id="email" v-model="profile.email" required />
+          </div>
+          <div class="form-group">
+            <label for="geburtsdatum">Geburtsdatum</label>
+            <input type="date" id="geburtsdatum" v-model="profile.geburtsdatum" required />
+          </div>
+          <div class="form-group">
+            <label>Geschlecht</label>
+            <div class="radio-group">
+              <label>
+                <input type="radio" value="männlich" v-model="profile.geschlecht" />
+                <span class="custom-radio"></span> Männlich
+              </label>
+              <label>
+                <input type="radio" value="weiblich" v-model="profile.geschlecht" />
+                <span class="custom-radio"></span> Weiblich
+              </label>
+              <label>
+                <input type="radio" value="keine Angabe" v-model="profile.geschlecht" />
+                <span class="custom-radio"></span> Keine Angabe
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn-primary">Speichern</button>
+        </form>
+      </div>
     </section>
 
     <!-- Footer -->
@@ -85,7 +100,8 @@
 </template>
 
 <script>
-import '@/assets/styles.css'; // Import der CSS-Datei
+import '@/assets/styles.css';
+import '@/assets/styles_myprofile.css';
 import axios from 'axios';
 
 export default {
@@ -102,6 +118,12 @@ export default {
         geburtsdatum: '',
         geschlecht: '',
       },
+      originalProfile: null,
+      notification: {
+        visible: false,
+        message: '',
+        type: '', // 'success' oder 'error'
+      },
     };
   },
   created() {
@@ -115,25 +137,53 @@ export default {
     async loadProfile() {
       try {
         const response = await axios.get(`http://localhost:3000/api/profile/${this.user.id}`);
-        this.profile = response.data;
+        const data = response.data;
+        // Datumskonvertierung mit Berücksichtigung des Zeitzonenoffsets
+        let d = new Date(data.Geburtsdatum);
+        d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+        this.profile = {
+          vorname: data.Vorname,
+          nachname: data.Nachname,
+          email: data.Email,
+          geburtsdatum: d.toISOString().substr(0, 10),
+          geschlecht: data.Geschlecht,
+        };
+        // Speichere eine Kopie der Originaldaten
+        this.originalProfile = JSON.parse(JSON.stringify(this.profile));
       } catch (error) {
         console.error('Fehler beim Laden des Profils:', error);
       }
     },
     async updateProfile() {
-      console.log(this.profile); // Überprüfe die gesendeten Daten
+      // Prüfen, ob sich wirklich etwas geändert hat
+      if (JSON.stringify(this.profile) === JSON.stringify(this.originalProfile)) {
+        console.log('Keine Änderungen erkannt.');
+        return;
+      }
       try {
+        console.log('Update-Daten vor Senden:', this.profile);
         await axios.put(`http://localhost:3000/api/profile/${this.user.id}`, this.profile);
-        alert('Profil erfolgreich aktualisiert.');
+        // Originaldaten aktualisieren
+        this.originalProfile = JSON.parse(JSON.stringify(this.profile));
+        this.showNotification('Profil erfolgreich aktualisiert.', 'success');
       } catch (error) {
         console.error('Fehler beim Aktualisieren des Profils:', error);
-        alert('Fehler beim Speichern des Profils.');
+        this.showNotification('Fehler beim Speichern des Profils.', 'error');
       }
     },
     logout() {
       localStorage.clear();
       this.user = null;
       this.$router.push('/');
+    },
+    showNotification(message, type) {
+      this.notification.message = message;
+      this.notification.type = type;
+      this.notification.visible = true;
+      // Automatisches Ausblenden nach 3 Sekunden
+      setTimeout(() => {
+        this.notification.visible = false;
+      }, 3000);
     },
   },
 };

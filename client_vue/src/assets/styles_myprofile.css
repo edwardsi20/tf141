@@ -1,0 +1,159 @@
+/* Profile Page */
+.profile-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  background: #f8f9fa;
+  padding: 2rem;
+}
+
+.profile-container {
+  max-width: 500px;
+  width: 100%;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.profile-container h1 {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.profile-form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.form-group {
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  display: block;
+  font-size: 1rem;
+  color: #555;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-group input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Radio Buttons */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #444;
+}
+
+/* Custom Radio Buttons */
+.radio-group input[type='radio'] {
+  display: none;
+}
+
+.radio-group .custom-radio {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #007bff;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.radio-group input[type='radio']:checked + .custom-radio {
+  background-color: #007bff;
+  border: 2px solid #007bff;
+}
+
+.radio-group input[type='radio']:checked + .custom-radio::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Submit Button */
+.btn-primary {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Transition für das Hereinrutschen der Benachrichtigung */
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+.slide-down-enter,
+.slide-down-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* Styling für die Push-Benachrichtigung */
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 250px;
+  padding: 1em;
+  border-radius: 5px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.notification.success {
+  background-color: #28a745; /* Grün */
+}
+.notification.error {
+  background-color: #dc3545; /* Rot */
+}
+.notification .icon {
+  margin-right: 0.5em;
+  font-size: 1.5em;
+}
