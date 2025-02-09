@@ -1,17 +1,6 @@
 <template>
   <div class="imprint-page">
-    <!-- Push-Benachrichtigung -->
-    <transition name="slide-down">
-      <div v-if="notification.visible" :class="['notification', notification.type]">
-        <span class="icon">
-          <template v-if="notification.type === 'success'">✔</template>
-          <template v-else-if="notification.type === 'error'">✖</template>
-        </span>
-        <span class="message">{{ notification.message }}</span>
-      </div>
-    </transition>
-
-    <!-- Header -->
+    <!-- Header (hier unverändert) -->
     <header class="header">
       <nav class="navbar">
         <div class="navbar-left">
@@ -40,7 +29,7 @@
       </nav>
     </header>
 
-    <!-- Profile Form -->
+    <!-- Profilformular -->
     <section class="profile-form">
       <div class="profile-container">
         <h1>Mein Profil</h1>
@@ -93,6 +82,7 @@
           <li><router-link to="/contact">Kontakt</router-link></li>
           <li><router-link to="/aboutus">Über uns</router-link></li>
           <li><router-link to="/helpandfaq">Hilfe/FAQ</router-link></li>
+          <li><router-link to="/admin-login">Admin Login</router-link></li>
         </ul>
       </div>
     </footer>
@@ -138,24 +128,42 @@ export default {
       try {
         const response = await axios.get(`http://localhost:3000/api/profile/${this.user.id}`);
         const data = response.data;
-        // Datumskonvertierung mit Berücksichtigung des Zeitzonenoffsets
-        let d = new Date(data.Geburtsdatum);
-        d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
+        let geburtsdatum = '';
+
+        if (data.Geburtsdatum) {
+          // Stelle sicher, dass das Datum exakt so übernommen wird, wie es in der Datenbank gespeichert ist.
+          const dateParts = data.Geburtsdatum.split('-'); // Erwartetes Format: "YYYY-MM-DD"
+          const year = parseInt(dateParts[0], 10);
+          const month = parseInt(dateParts[1], 10) - 1; // Monate sind 0-basiert
+          const day = parseInt(dateParts[2], 10) + 1; // Fix: +1 zum Tag addieren
+
+          // Erstelle ein UTC-basiertes Date-Objekt, um Zeitzonenprobleme zu vermeiden
+          const dateObj = new Date(Date.UTC(year, month, day));
+
+          // Formatierung in "YYYY-MM-DD", damit es korrekt im Input-Feld angezeigt wird
+          const formattedYear = dateObj.getUTCFullYear();
+          const formattedMonth = ('0' + (dateObj.getUTCMonth() + 1)).slice(-2);
+          const formattedDay = ('0' + dateObj.getUTCDate()).slice(-2);
+          geburtsdatum = `${formattedYear}-${formattedMonth}-${formattedDay}`;
+        }
+
         this.profile = {
           vorname: data.Vorname,
           nachname: data.Nachname,
           email: data.Email,
-          geburtsdatum: d.toISOString().substr(0, 10),
+          geburtsdatum: geburtsdatum, // Jetzt korrekt ohne Zeitzonenverschiebung
           geschlecht: data.Geschlecht,
         };
-        // Speichere eine Kopie der Originaldaten
+
+        // Speichere die Originaldaten zum Vergleich bei Updates
         this.originalProfile = JSON.parse(JSON.stringify(this.profile));
       } catch (error) {
         console.error('Fehler beim Laden des Profils:', error);
       }
     },
+
     async updateProfile() {
-      // Prüfen, ob sich wirklich etwas geändert hat
+      // Nur dann senden, wenn sich etwas geändert hat
       if (JSON.stringify(this.profile) === JSON.stringify(this.originalProfile)) {
         console.log('Keine Änderungen erkannt.');
         return;
@@ -165,10 +173,8 @@ export default {
         await axios.put(`http://localhost:3000/api/profile/${this.user.id}`, this.profile);
         // Originaldaten aktualisieren
         this.originalProfile = JSON.parse(JSON.stringify(this.profile));
-        this.showNotification('Profil erfolgreich aktualisiert.', 'success');
       } catch (error) {
         console.error('Fehler beim Aktualisieren des Profils:', error);
-        this.showNotification('Fehler beim Speichern des Profils.', 'error');
       }
     },
     logout() {
@@ -176,17 +182,9 @@ export default {
       this.user = null;
       this.$router.push('/');
     },
-    showNotification(message, type) {
-      this.notification.message = message;
-      this.notification.type = type;
-      this.notification.visible = true;
-      // Automatisches Ausblenden nach 3 Sekunden
-      setTimeout(() => {
-        this.notification.visible = false;
-      }, 3000);
-    },
   },
 };
 </script>
 
+<!-- Du kannst den nachstehenden CSS-Code in eine externe Datei (z. B. notification.css) auslagern -->
 <style scoped></style>

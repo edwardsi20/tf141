@@ -14,6 +14,8 @@ const HelpAndFAQ = () => import('../components/HelpAndFAQ.vue');
 const Register = () => import('../components/Register.vue');
 const MyProfile = () => import('../components/MyProfile.vue');
 const NotFoundPage = () => import('../components/NotFoundPage.vue');
+const AdminLogin = () => import('../components/AdminLogin.vue');
+const AdminDashboard = () => import('../components/AdminDashboard.vue');
 
 const routes = [
   {
@@ -80,6 +82,16 @@ const routes = [
     path: '/myprofile',
     name: 'MyProfile',
     component: MyProfile,
+  },
+  {
+    path: '/admin-login',
+    name: 'AdminLogin',
+    component: AdminLogin,
+  },
+  {
+    path: '/admin-dashboard',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
   },
   {
     path: '/:pathMatch(.*)*',

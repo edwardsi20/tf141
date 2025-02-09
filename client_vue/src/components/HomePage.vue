@@ -125,6 +125,7 @@
           <li><router-link to="/contact">Kontakt</router-link></li>
           <li><router-link to="/aboutus">Über uns</router-link></li>
           <li><router-link to="/helpandfaq">Hilfe/FAQ</router-link></li>
+          <li><router-link to="/admin-login">Admin Login</router-link></li>
         </ul>
       </div>
     </footer>

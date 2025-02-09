@@ -5,6 +5,8 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const { Client } = require('pg');
 
+const bcrypt = require('bcrypt');
+
 const app = express();
 const port = 3000;
 
@@ -12,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
+const router = express.Router();
 const client = new Client({
   connectionString: process.env.DATABASE_URL,
 });
@@ -160,7 +163,7 @@ app.put('/api/profile/:id', async (req, res) => {
       [vorname, nachname, email, geburtsdatum, geschlecht, id],
     );
 
-    // Falls Schüler nicht gefunden wurde, versuche das Lehrer-Profil zu aktualisieren
+    // Falls kein Schüler gefunden wurde, versuche das Lehrer-Profil zu aktualisieren
     if (schuelerResult.rowCount === 0) {
       const lehrerResult = await client.query(
         `
@@ -184,9 +187,10 @@ app.put('/api/profile/:id', async (req, res) => {
     }
 
     // Erfolgreiches Schüler-Update
-    console.log('Update-Daten:', { id, vorname, nachname, email, geburtsdatum, geschlecht });
-    console.log('Schüler-Update-Ergebnis:', schuelerResult.rows);
-    res.json({ message: 'Profil erfolgreich aktualisiert', profile: schuelerResult.rows[0] });
+    return res.json({
+      message: 'Profil erfolgreich aktualisiert',
+      profile: schuelerResult.rows[0],
+    });
   } catch (err) {
     console.error('Fehler beim Aktualisieren des Profils:', err);
     res.status(500).send('Fehler beim Aktualisieren des Profils');
@@ -250,6 +254,83 @@ app.post('/send-email', async (req, res) => {
   }
 });
 
+// Admin Registrierung
+router.post('/admin/register', async (req, res) => {
+  const { vorname, nachname, email, passwort } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(passwort, 10);
+    const result = await client.query(
+      'INSERT INTO Admin (Vorname, Nachname, Email, Passwort) VALUES ($1, $2, $3, $4) RETURNING AdminID, Vorname, Nachname, Email',
+      [vorname, nachname, email, hashedPassword],
+    );
+    res.status(201).json({ message: 'Admin erfolgreich registriert', admin: result.rows[0] });
+  } catch (err) {
+    console.error('Fehler bei der Admin-Registrierung:', err);
+    res.status(500).send('Fehler bei der Registrierung');
+  }
+});
+
+// Admin Login
+router.post('/admin/login', async (req, res) => {
+  const { email, passwort } = req.body;
+
+  try {
+    const result = await client.query('SELECT * FROM Admin WHERE Email = $1', [email]);
+    if (result.rows.length === 0)
+      return res.status(401).json({ message: 'Ungültige Anmeldeinformationen' });
+
+    const admin = result.rows[0];
+    const isMatch = await bcrypt.compare(passwort, admin.passwort);
+    if (!isMatch) return res.status(401).json({ message: 'Ungültige Anmeldeinformationen' });
+
+    res.json({
+      message: 'Login erfolgreich',
+      admin: {
+        id: admin.adminid,
+        vorname: admin.vorname,
+        nachname: admin.nachname,
+        email: admin.email,
+      },
+    });
+  } catch (err) {
+    console.error('Fehler beim Admin-Login:', err);
+    res.status(500).send('Fehler bei der Anmeldung');
+  }
+});
+
+// Benutzer löschen
+router.delete('/api/user/:id', async (req, res) => {
+  try {
+    await client.query('DELETE FROM Lehrer WHERE LehrerID = $1', [req.params.id]);
+    await client.query('DELETE FROM Schueler WHERE SchuelerID = $1', [req.params.id]);
+    res.status(204).send();
+  } catch (err) {
+    console.error('Fehler beim Löschen:', err);
+    res.status(500).send('Fehler beim Löschen');
+  }
+});
+
+// Benutzer deaktivieren
+router.put('/api/user/:id/deaktivieren', async (req, res) => {
+  try {
+    await client.query(
+      'UPDATE Lehrer SET Email = CONCAT(Email, ".deaktiviert") WHERE LehrerID = $1',
+      [req.params.id],
+    );
+    await client.query(
+      'UPDATE Schueler SET Email = CONCAT(Email, ".deaktiviert") WHERE SchuelerID = $1',
+      [req.params.id],
+    );
+    res.json({ message: 'Benutzer deaktiviert' });
+  } catch (err) {
+    console.error('Fehler beim Deaktivieren:', err);
+    res.status(500).send('Fehler beim Deaktivieren');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);
 });
+
+module.exports = router;

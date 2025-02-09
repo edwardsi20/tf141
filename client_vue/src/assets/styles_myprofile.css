@@ -121,39 +121,4 @@
   background-color: #0056b3;
 }
 
-/* Transition für das Hereinrutschen der Benachrichtigung */
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: transform 0.5s ease, opacity 0.5s ease;
-}
-.slide-down-enter,
-.slide-down-leave-to {
-  transform: translateY(-100%);
-  opacity: 0;
-}
-
-/* Styling für die Push-Benachrichtigung */
-.notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  min-width: 250px;
-  padding: 1em;
-  border-radius: 5px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  z-index: 1000;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-.notification.success {
-  background-color: #28a745; /* Grün */
-}
-.notification.error {
-  background-color: #dc3545; /* Rot */
-}
-.notification .icon {
-  margin-right: 0.5em;
-  font-size: 1.5em;
-}
+/**/
