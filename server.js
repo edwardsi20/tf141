@@ -42,6 +42,18 @@ app.get('/api/lehrer', async (req, res) => {
   }
 });
 
+app.get('/api/schueler', async (req, res) => {
+  try {
+    const result = await client.query(
+      'SELECT "SchuelerID" AS schuelerid, "Vorname" AS vorname, "Nachname" AS nachname, "Email" AS email FROM "Schueler"',
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Fehler beim Abrufen der Schülerdaten:', err);
+    res.status(500).send('Fehler beim Abrufen der Daten');
+  }
+});
+
 app.post('/api/lehrer', async (req, res) => {
   const { vorname, nachname, geburtsdatum, geschlecht, email, passwort } = req.body;
   try {
@@ -55,8 +67,6 @@ app.post('/api/lehrer', async (req, res) => {
     res.status(500).send('Fehler beim Hinzufügen der Daten');
   }
 });
-
-const bcrypt = require('bcrypt');
 
 // Authentifizierungs-Endpoint
 app.post('/api/login', async (req, res) => {
@@ -255,7 +265,7 @@ app.post('/send-email', async (req, res) => {
 });
 
 // Admin Registrierung
-router.post('/admin/register', async (req, res) => {
+app.post('/api/admin-register', async (req, res) => {
   const { vorname, nachname, email, passwort } = req.body;
 
   try {
@@ -272,7 +282,7 @@ router.post('/admin/register', async (req, res) => {
 });
 
 // Admin Login
-router.post('/admin/login', async (req, res) => {
+app.post('/api/admin-login', async (req, res) => {
   const { email, passwort } = req.body;
 
   try {
@@ -300,16 +310,16 @@ router.post('/admin/login', async (req, res) => {
 });
 
 // Benutzer löschen
-router.delete('/api/user/:id', async (req, res) => {
-  try {
-    await client.query('DELETE FROM Lehrer WHERE LehrerID = $1', [req.params.id]);
-    await client.query('DELETE FROM Schueler WHERE SchuelerID = $1', [req.params.id]);
-    res.status(204).send();
-  } catch (err) {
-    console.error('Fehler beim Löschen:', err);
-    res.status(500).send('Fehler beim Löschen');
-  }
-});
+// router.delete('/api/user/:id', async (req, res) => {
+//   try {
+//     await client.query('DELETE FROM Lehrer WHERE LehrerID = $1', [req.params.id]);
+//     await client.query('DELETE FROM Schueler WHERE SchuelerID = $1', [req.params.id]);
+//     res.status(204).send();
+//   } catch (err) {
+//     console.error('Fehler beim Löschen:', err);
+//     res.status(500).send('Fehler beim Löschen');
+//   }
+// });
 
 // Benutzer deaktivieren
 router.put('/api/user/:id/deaktivieren', async (req, res) => {
@@ -328,6 +338,8 @@ router.put('/api/user/:id/deaktivieren', async (req, res) => {
     res.status(500).send('Fehler beim Deaktivieren');
   }
 });
+
+console.log(app._router.stack.map((r) => r.route && r.route.path).filter(Boolean));
 
 app.listen(port, () => {
   console.log(`Server läuft auf http://localhost:${port}`);

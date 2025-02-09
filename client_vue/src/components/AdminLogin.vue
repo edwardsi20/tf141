@@ -91,16 +91,18 @@ export default {
       regEmail: '',
       regPasswort: '',
       regError: '',
+      user: null,
     };
   },
   methods: {
     async login() {
       try {
-        const response = await axios.post('/api/admin/login', {
+        const response = await axios.post('http://localhost:3000/api/admin-login', {
           email: this.email,
           passwort: this.passwort,
         });
-        localStorage.setItem('adminToken', response.data.token);
+        localStorage.setItem('adminData', JSON.stringify(response.data.admin));
+        this.user = response.data.admin;
         this.$router.push('/admin-dashboard');
       } catch (err) {
         this.error = 'Fehler beim Login. Bitte überprüfen Sie Ihre Daten.';
@@ -108,7 +110,7 @@ export default {
     },
     async register() {
       try {
-        await axios.post('/api/admin/register', {
+        await axios.post('http://localhost:3000/api/admin-register', {
           vorname: this.vorname,
           nachname: this.nachname,
           email: this.regEmail,
@@ -124,13 +126,57 @@ export default {
 </script>
 
 <style scoped>
-.admin-login {
-  max-width: 400px;
-  margin: auto;
-  padding: 20px;
-  text-align: center;
+.admin-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
 }
+
+.admin-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+h2 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
 .error {
   color: red;
+  margin-top: 10px;
 }
 </style>
